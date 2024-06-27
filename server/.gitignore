@@ -26,3 +26,5 @@ dist-ssr
 ../.idea
 .idea
 ../client/.idea
+
+package-lock.json
