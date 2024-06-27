@@ -49,7 +49,7 @@ const FileUpload: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        `https://e2877c54-da8e-49d1-9eae-0a26fa70f398.dev-fkt.cloud.genez.io/upload-${fileType}`,
+        `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/upload-${fileType}`,
         // `http://localhost:3000/upload-${fileType}`,
         formData,
         {
@@ -96,7 +96,7 @@ const FileUpload: React.FC = () => {
         formData.append('file', fileBlob, fileName);
 
         return await axios.post(
-          `https://e2877c54-da8e-49d1-9eae-0a26fa70f398.dev-fkt.cloud.genez.io/upload-${fileType}`,
+          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/upload-${fileType}`,
           // `http://localhost:3000/upload-${fileType}`,
           formData,
           {headers: {'Content-Type': 'multipart/form-data'}}
@@ -120,12 +120,12 @@ const FileUpload: React.FC = () => {
         setDataFileName(uploadDataResponse.data.fileName);
 
         response = await axios.get(
-          `https://e2877c54-da8e-49d1-9eae-0a26fa70f398.dev-fkt.cloud.genez.io/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
+          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
           // `http://localhost:3000/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`
         );
       } else {
         response = await axios.get(
-          `https://e2877c54-da8e-49d1-9eae-0a26fa70f398.dev-fkt.cloud.genez.io/generate?template=${template}&data=${data}`,
+          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/generate?template=${template}&data=${data}`,
           // `http://localhost:3000/generate?template=${template}&data=${data}`
         );
       }
@@ -133,7 +133,7 @@ const FileUpload: React.FC = () => {
       if (response.data.status === 200) {
         const pathName = response.data.pathName;
         const downloadResponse = await axios.get(
-          `https://e2877c54-da8e-49d1-9eae-0a26fa70f398.dev-fkt.cloud.genez.io/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
+          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
           // `http://localhost:3000/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
           { responseType: 'blob' }
         );
