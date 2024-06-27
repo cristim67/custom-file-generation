@@ -1,5 +1,5 @@
 {
-  "name": "xlsx-importer",
+  "name": "custom-file-generation-backend",
   "version": "1.0.0",
   "main": "index.mjs",
   "scripts": {
