@@ -49,8 +49,7 @@ const FileUpload: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/upload-${fileType}`,
-        // `http://localhost:3000/upload-${fileType}`,
+        `http://localhost:3000/upload-${fileType}`,
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -78,33 +77,33 @@ const FileUpload: React.FC = () => {
     const defaultTemplate = 'sample-template.docx';
     const defaultData = 'sample-data.xlsx';
 
-    const template = fileDocx ? templateFileName : defaultTemplate;
-    const data = fileExcel ? dataFileName : defaultData;
+    const uploadDefaultFile = async (fileName: string, fileType: 'docx' | 'excel') => {
+      const response = await fetch(`/${fileName}`);
+      const fileBlob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', fileBlob, fileName);
 
-    if (!fileDocx && !fileExcel) {
-      setMessage('Please upload both template and data files.');
-      return;
-    }
+      return await axios.post(
+        `http://localhost:3000/upload-${fileType}`,
+        formData,
+        {headers: {'Content-Type': 'multipart/form-data'}}
+      );
+    };
 
     try {
       setLoading(true);
 
-      const uploadDefaultFile = async (fileName: string, fileType: 'docx' | 'excel') => {
-        const response = await fetch(`/${fileName}`);
-        const fileBlob = await response.blob();
-        const formData = new FormData();
-        formData.append('file', fileBlob, fileName);
+      if (fileDocx && !fileExcel) {
+        setMessage('Error: Please upload an Excel file.');
+        return;
+      }
 
-        return await axios.post(
-          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/upload-${fileType}`,
-          // `http://localhost:3000/upload-${fileType}`,
-          formData,
-          {headers: {'Content-Type': 'multipart/form-data'}}
-        );
-      };
+      if (!fileDocx && fileExcel) {
+        setMessage('Error: Please upload a DOCX file.');
+        return;
+      }
 
-      let response;
-      if (template === defaultTemplate && data === defaultData) {
+      if (!fileDocx && !fileExcel) {
         const uploadTemplateResponse = await uploadDefaultFile(defaultTemplate, 'docx');
         if (uploadTemplateResponse.data.status !== 200) {
           setMessage('Error uploading sample DOCX file.');
@@ -119,39 +118,59 @@ const FileUpload: React.FC = () => {
         }
         setDataFileName(uploadDataResponse.data.fileName);
 
-        response = await axios.get(
-          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
-          // `http://localhost:3000/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`
+        const response = await axios.get(
+          `http://localhost:3000/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`
         );
+
+        if (response.data.status === 200) {
+          const pathName = response.data.pathName;
+          const downloadResponse = await axios.get(
+            `http://localhost:3000/download?pathName=${pathName}&template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
+            { responseType: 'blob' }
+          );
+
+          const blob = new Blob([downloadResponse.data], { type: 'application/zip' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${pathName}.zip`);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
+
+          setMessage('Data have been successfully generated and downloaded.');
+
+          location.reload();
+        } else {
+          setMessage('Error generating data.');
+        }
       } else {
-        response = await axios.get(
-          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/generate?template=${template}&data=${data}`,
-          // `http://localhost:3000/generate?template=${template}&data=${data}`
-        );
-      }
-
-      if (response.data.status === 200) {
-        const pathName = response.data.pathName;
-        const downloadResponse = await axios.get(
-          `https://1bb6ac84-b2ed-4107-8674-ce330d3190dc.dev-fkt.cloud.genez.io/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
-          // `http://localhost:3000/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
-          { responseType: 'blob' }
+        const response = await axios.get(
+          `http://localhost:3000/generate?template=${templateFileName}&data=${dataFileName}`
         );
 
-        const blob = new Blob([downloadResponse.data], { type: 'application/zip' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${pathName}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
+        if (response.data.status === 200) {
+          const pathName = response.data.pathName;
+          const downloadResponse = await axios.get(
+            `http://localhost:3000/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
+            { responseType: 'blob' }
+          );
 
-        setMessage('Data have been successfully generated and downloaded.');
+          const blob = new Blob([downloadResponse.data], { type: 'application/zip' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${pathName}.zip`);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
 
-        location.reload();
-      } else {
-        setMessage('Error generating data.');
+          setMessage('Data have been successfully generated and downloaded.');
+
+          location.reload();
+        } else {
+          setMessage('Error generating data.');
+        }
       }
     } catch (error) {
       console.error(error);
