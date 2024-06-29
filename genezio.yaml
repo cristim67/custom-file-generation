@@ -12,7 +12,7 @@ backend:
     deploy:
       - npm install
   functions:
-    - name: function-custom-file-generation
+    - name: custom-file-generation
       path: ./
       type: aws
       handler: handler

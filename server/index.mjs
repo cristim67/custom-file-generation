@@ -213,15 +213,4 @@ app.get('/download', async (req, res) => {
     await archive.finalize();
 });
 
-
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-})
-
-
-app.listen(3000, () => {
-    console.log('Server listening on port 3000');
-});
-
-
 export const handler = serverless(app);

@@ -1,6 +1,6 @@
-import React, {ChangeEvent, FormEvent, useState} from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import axios from 'axios';
-import {ClipLoader} from 'react-spinners';
+import { ClipLoader } from 'react-spinners';
 
 const FileUpload: React.FC = () => {
   const [fileDocx, setFileDocx] = useState<File | null>(null);
@@ -9,6 +9,8 @@ const FileUpload: React.FC = () => {
   const [templateFileName, setTemplateFileName] = useState<string>('');
   const [dataFileName, setDataFileName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleFileChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -49,7 +51,7 @@ const FileUpload: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        `http://localhost:3000/upload-${fileType}`,
+        `${apiUrl}/upload-${fileType}`,
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -84,9 +86,9 @@ const FileUpload: React.FC = () => {
       formData.append('file', fileBlob, fileName);
 
       return await axios.post(
-        `http://localhost:3000/upload-${fileType}`,
+        `${apiUrl}/upload-${fileType}`,
         formData,
-        {headers: {'Content-Type': 'multipart/form-data'}}
+        { headers: { 'Content-Type': 'multipart/form-data' } }
       );
     };
 
@@ -119,13 +121,13 @@ const FileUpload: React.FC = () => {
         setDataFileName(uploadDataResponse.data.fileName);
 
         const response = await axios.get(
-          `http://localhost:3000/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`
+          `${apiUrl}/generate?template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`
         );
 
         if (response.data.status === 200) {
           const pathName = response.data.pathName;
           const downloadResponse = await axios.get(
-            `http://localhost:3000/download?pathName=${pathName}&template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
+            `${apiUrl}/download?pathName=${pathName}&template=${uploadTemplateResponse.data.fileName}&data=${uploadDataResponse.data.fileName}`,
             { responseType: 'blob' }
           );
 
@@ -146,13 +148,13 @@ const FileUpload: React.FC = () => {
         }
       } else {
         const response = await axios.get(
-          `http://localhost:3000/generate?template=${templateFileName}&data=${dataFileName}`
+          `${apiUrl}/generate?template=${templateFileName}&data=${dataFileName}`
         );
 
         if (response.data.status === 200) {
           const pathName = response.data.pathName;
           const downloadResponse = await axios.get(
-            `http://localhost:3000/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
+            `${apiUrl}/download?pathName=${pathName}&template=${templateFileName}&data=${dataFileName}`,
             { responseType: 'blob' }
           );
 
@@ -201,7 +203,7 @@ const FileUpload: React.FC = () => {
       )}
       {loading && (
         <div className="flex justify-center mb-6">
-          <ClipLoader size={35} color={"#123abc"} loading={loading}/>
+          <ClipLoader size={35} color={"#123abc"} loading={loading} />
         </div>
       )}
       <div className="mb-6">
