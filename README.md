@@ -81,6 +81,17 @@ genezio login
 genezio deploy
 ```
 
+4.Create a `.env` file in the `client` directory and add the following environment variables:
+```bash
+VITE_API_URL=https://<your_project_id>.cloud.genez.io
+```
+
+Note: this value is the same as field `Functions Deployed` in the output of the `genezio deploy` command.
+
+5. Deploy the environment variables
+```bash
+genezio deploy --env client/.env
+```
 
 ## Commands
 
