@@ -32,4 +32,3 @@ frontend:
     build:
       - npm install
       - npm run build
-  subdomain: custom-file-generation
