@@ -1,0 +1,34 @@
+name: custom-file-generation # The name of the application
+# The region where the application will be deployed. Available regions: us-east-1, eu-central-1
+region: eu-central-1
+yamlVersion: 2
+backend:
+  # The root directory of the backend.
+  path: server
+  language:
+    name: js
+    packageManager: npm
+  scripts:
+    deploy:
+      - npm install
+  functions:
+    - name: custom-file-generation
+      path: ./
+      type: aws
+      handler: handler
+      entry: index.mjs
+frontend:
+  # Specifies the path of your code.
+  path: client
+  # Specifies the folder where the build is located.
+  # This is the folder that will be deployed.
+  publish: dist
+  # Scripts will run in the specified `path` folder.
+  scripts:
+    start:
+      - npm install
+      - npm run dev
+    # The command to build your frontend project. This is custom to your project.
+    build:
+      - npm install
+      - npm run build
